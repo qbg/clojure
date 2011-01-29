@@ -239,6 +239,19 @@ str-or-pattern."
            (str (.getClassName el) "." (.getMethodName el)))
          " (" (.getFileName el) ":" (.getLineNumber el) ")")))
 
+(defn format-exception-message
+  "Return a human-readable string representation of the exception message"
+  [e]
+  (let [pat #"([a-zA-Z.$_]+) cannot be cast to ([a-zA-Z.$_]+)"
+	default (str (-> e class .getSimpleName) " " (.getMessage e))]
+    (if (= (class e) java.lang.ClassCastException)
+      (if-let [[_ actual wanted] (re-matches pat (.getMessage e))]
+	(let [actual-name (last (re-seq #"[a-zA-Z_]+" actual))
+	      wanted-name (last (re-seq #"[a-zA-Z_]+" wanted))]
+	  (str "ClassCastException Wanted: " wanted-name " Had: " actual-name))
+	default)
+      default)))
+
 (defn pst
   "Prints a stack trace of the exception, to the depth requested. If none supplied, uses the root cause of the
   most recent repl exception (*e), and a depth of 12."
@@ -251,7 +264,7 @@ str-or-pattern."
          (pst (root-cause e) e-or-depth))))
   ([^Throwable e depth]
      (binding [*out* *err*]
-       (println (str (-> e class .getSimpleName) " " (.getMessage e)))
+       (println (format-exception-message e))
        (let [st (.getStackTrace e)
              cause (.getCause e)]
          (doseq [el (take depth
