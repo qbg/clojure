@@ -929,12 +929,7 @@ static public short shortCast(Object x){
 static public int intCast(Object x){
 	if(x instanceof Integer)
 		return ((Integer)x).intValue();
-	if(x instanceof Number)
-		{
-		long n = longCast(x);
-		return intCast(n);
-		}
-	return ((Character) x).charValue();
+	return intCast(longCast(x));
 }
 
 static public int intCast(char x){
@@ -990,6 +985,10 @@ static public long longCast(Object x){
 			return bi.longValue();
 		else
 			throw new IllegalArgumentException("Value out of range for long: " + x);
+		}
+	else if (x instanceof Character)
+	        {
+		return ((Character) x).charValue();
 		}
 	return ((Number) x).longValue();
 }
