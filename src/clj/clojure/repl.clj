@@ -246,9 +246,7 @@ str-or-pattern."
 	default (str (-> e class .getSimpleName) " " (.getMessage e))]
     (if (= (class e) java.lang.ClassCastException)
       (if-let [[_ actual wanted] (re-matches pat (.getMessage e))]
-	(let [actual-name (last (re-seq #"[a-zA-Z_]+" actual))
-	      wanted-name (last (re-seq #"[a-zA-Z_]+" wanted))]
-	  (str "ClassCastException Wanted: " wanted-name " Had: " actual-name))
+	(str "ClassCastException Cannot use " actual " as " wanted)
 	default)
       default)))
 
