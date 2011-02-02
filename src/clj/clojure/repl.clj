@@ -239,14 +239,43 @@ str-or-pattern."
            (str (.getClassName el) "." (.getMethodName el)))
          " (" (.getFileName el) ":" (.getLineNumber el) ")")))
 
+(defn- resolve-class
+  "Returns the class specified by the binary name s in the context classloader,
+   or nil if the class could not be found"
+  [^String s]
+  (try
+    (.. (Thread/currentThread) getContextClassLoader (loadClass s))
+    (catch ClassNotFoundException e nil)))
+
+(def ^:private fuzzy-types
+  [[clojure.lang.IPersistentVector "a vector"]
+   [clojure.lang.ISeq "a seq"]
+   [clojure.lang.IFn "a function"]
+   [java.lang.Number "a number"]])
+
+(defn- fuzzy-type-name
+  "Return the fuzzy type name associated with the class named by s"
+  [s]
+  (if-let [cls (resolve-class s)]
+    (let [types (conj (supers cls) cls)
+	  [match] (filter #(types (first %)) fuzzy-types)]
+      (if-let [[specific fuzzy] match]
+	(if (= specific cls)
+	  fuzzy
+	  (format "%s (%s)" fuzzy s))
+	s))
+    s))
+
 (defn format-exception-message
   "Return a human-readable string representation of the exception message"
   [e]
-  (let [pat #"([a-zA-Z.$_]+) cannot be cast to ([a-zA-Z.$_]+)"
+  (let [pat #"([a-zA-Z.$_0-9]+) cannot be cast to ([a-zA-Z.$_0-9]+)"
 	default (str (-> e class .getSimpleName) " " (.getMessage e))]
     (if (= (class e) java.lang.ClassCastException)
       (if-let [[_ actual wanted] (re-matches pat (.getMessage e))]
-	(str "ClassCastException Cannot use " actual " as " wanted)
+	(let [actual (fuzzy-type-name actual)
+	      wanted (fuzzy-type-name wanted)]
+	  (str "ClassCastException Cannot use " actual " as " wanted))
 	default)
       default)))
 
