@@ -264,10 +264,9 @@ str-or-pattern."
 (defn- fuzzy-type-name
   "Return the fuzzy type name associated with the class named by s"
   [s]
-  (let [cls (resolve-class s)
+  (let [^Class cls (resolve-class s)
 	s (let [dem (demunge s)] (if (resolve (symbol dem)) dem s))
-	types (conj (or (supers cls) #{}) cls)
-	[match] (filter #(types (first %)) fuzzy-types)]
+	[match] (filter #(.isAssignableFrom ^Class (first %) cls) fuzzy-types)]
     (if-let [[specific fuzzy] match]
       (if (= specific cls)
 	fuzzy
