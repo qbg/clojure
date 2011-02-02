@@ -250,21 +250,29 @@ str-or-pattern."
 (def ^:private fuzzy-types
   [[clojure.lang.IPersistentVector "a vector"]
    [clojure.lang.ISeq "a seq"]
+   [java.lang.Number "a number"]
+   [java.lang.String "a string"]
+   [clojure.lang.Keyword "a keyword"]
+   [clojure.lang.Symbol "a symbol"]
+   [clojure.lang.IPersistentMap "a map"]
+   [clojure.lang.IPersistentSet "a set"]
    [clojure.lang.IFn "a function"]
-   [java.lang.Number "a number"]])
+   [clojure.lang.Agent "an agent"]
+   [clojure.lang.IRef "a ref"]
+   [clojure.lang.Atom "an atom"]])
 
 (defn- fuzzy-type-name
   "Return the fuzzy type name associated with the class named by s"
   [s]
-  (if-let [cls (resolve-class s)]
-    (let [types (conj (supers cls) cls)
-	  [match] (filter #(types (first %)) fuzzy-types)]
-      (if-let [[specific fuzzy] match]
-	(if (= specific cls)
-	  fuzzy
-	  (format "%s (%s)" fuzzy s))
-	s))
-    s))
+  (let [cls (resolve-class s)
+	s (let [dem (demunge s)] (if (resolve (symbol dem)) dem s))
+	types (conj (or (supers cls) #{}) cls)
+	[match] (filter #(types (first %)) fuzzy-types)]
+    (if-let [[specific fuzzy] match]
+      (if (= specific cls)
+	fuzzy
+	(format "%s (%s)" fuzzy s))
+      s)))
 
 (defn format-exception-message
   "Return a human-readable string representation of the exception message"
