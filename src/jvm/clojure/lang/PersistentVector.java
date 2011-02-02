@@ -103,7 +103,7 @@ public Object[] arrayFor(int i){
 			node = (Node) node.array[(i >>> level) & 0x01f];
 		return node.array;
 		}
-	throw new IndexOutOfBoundsException();
+	throw new IndexOutOfBoundsException("Index: " + i + ", Size: " + cnt);
 }
 
 public Object nth(int i){

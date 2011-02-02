@@ -22,7 +22,7 @@ public Object nth(int i){
 	else if(i == 1)
 		return val();
 	else
-		throw new IndexOutOfBoundsException();
+		throw new IndexOutOfBoundsException("Index: " + i + ", Size: 2");
 }
 
 private IPersistentVector asVector(){

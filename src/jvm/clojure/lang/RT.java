@@ -747,17 +747,18 @@ static Object nthFrom(Object coll, int n){
 			return e.getKey();
 		else if(n == 1)
 			return e.getValue();
-		throw new IndexOutOfBoundsException();
+		throw new IndexOutOfBoundsException("Index: " + n + ", Size: 2");
 	}
 
 	else if(coll instanceof Sequential) {
 		ISeq seq = RT.seq(coll);
 		coll = null;
-		for(int i = 0; i <= n && seq != null; ++i, seq = seq.next()) {
+		int i = 0;
+		for(; i <= n && seq != null; ++i, seq = seq.next()) {
 			if(i == n)
 				return seq.first();
 		}
-		throw new IndexOutOfBoundsException();
+		throw new IndexOutOfBoundsException("Index: " + n + ", Size: " + i);
 	}
 	else
 		throw new UnsupportedOperationException(
