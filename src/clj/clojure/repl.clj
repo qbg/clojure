@@ -249,7 +249,7 @@ str-or-pattern."
 
 (def ^:private fuzzy-types
   [[clojure.lang.IPersistentVector "a vector"]
-   [clojure.lang.ISeq "a seq"]
+   [clojure.lang.ISeq "a sequence"]
    [java.lang.Number "a number"]
    [java.lang.String "a string"]
    [clojure.lang.Keyword "a keyword"]
@@ -271,18 +271,30 @@ str-or-pattern."
       (format "%s (%s)" fuzzy s)
       s)))
 
-(defn format-exception-message
-  "Return a human-readable string representation of the exception message"
-  [e]
-  (let [pat #"([a-zA-Z.$_0-9]+) cannot be cast to ([a-zA-Z.$_0-9]+)"
-	default (str (-> e class .getSimpleName) " " (.getMessage e))]
-    (if (= (class e) java.lang.ClassCastException)
-      (if-let [[_ actual wanted] (re-matches pat (.getMessage e))]
-	(let [actual (fuzzy-type-name actual)
-	      wanted (fuzzy-type-name wanted)]
-	  (str "ClassCastException Cannot use " actual " as " wanted))
-	default)
-      default)))
+(defprotocol PExplain
+  (explain [object] "Returns a string explaining the object"))
+
+(extend-protocol PExplain
+  java.lang.ClassCastException
+  (explain [e]
+	(let [pat #"([a-zA-Z.$_0-9]+) cannot be cast to ([a-zA-Z.$_0-9]+)"]
+	  (if-let [[_ actual wanted] (re-matches pat (.getMessage e))]
+		(let [actual (fuzzy-type-name actual)
+			  wanted (fuzzy-type-name wanted)]
+		  (str "ClassCastException Cannot use " actual " as " wanted))
+		(str "ClassCastException " (.getMessage e)))))
+
+  java.lang.IllegalArgumentException
+  (explain [e]
+	(let [pat #"Don't know how to create ISeq from: ([a-zA-Z.$_0-9]+)"]
+	  (if-let [[_ target] (re-matches pat (.getMessage e))]
+		(format "IllegalArgumentException Don't know how to create a sequence (clojure.lang.ISeq) from %s" 
+				(fuzzy-type-name target))
+		(str "IllegalArgumentException " (.getMessage e)))))
+
+  java.lang.Throwable
+  (explain [t]
+	(str (-> t class .getSimpleName) " " (.getMessage t))))
 
 (defn pst
   "Prints a stack trace of the exception, to the depth requested. If none supplied, uses the root cause of the
@@ -296,7 +308,7 @@ str-or-pattern."
          (pst (root-cause e) e-or-depth))))
   ([^Throwable e depth]
      (binding [*out* *err*]
-       (println (format-exception-message e))
+       (println (explain e))
        (let [st (.getStackTrace e)
              cause (.getCause e)]
          (doseq [el (take depth
