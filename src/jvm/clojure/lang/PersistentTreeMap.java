@@ -70,10 +70,12 @@ PersistentTreeMap(IPersistentMap meta, Comparator comp, Node tree, int _count){
 
 static public PersistentTreeMap create(ISeq items){
 	IPersistentMap ret = EMPTY;
+	int i = 0;
 	for(; items != null; items = items.next().next())
 		{
 		if(items.next() == null)
-			throw new IllegalArgumentException(String.format("No value supplied for key: %s", items.first()));
+			throw new IllegalArgumentException(String.format("Cannot create a map from an odd number of items: %d", i+1));
+		i += 2;
 		ret = ret.assoc(items.first(), RT.second(items));
 		}
 	return (PersistentTreeMap) ret;
@@ -81,10 +83,12 @@ static public PersistentTreeMap create(ISeq items){
 
 static public PersistentTreeMap create(Comparator comp, ISeq items){
 	IPersistentMap ret = new PersistentTreeMap(comp);
+	int i = 0;
 	for(; items != null; items = items.next().next())
 		{
 		if(items.next() == null)
-			throw new IllegalArgumentException(String.format("No value supplied for key: %s", items.first()));
+			throw new IllegalArgumentException(String.format("Cannot create a map from an odd number of items: %d", i+1));
+		i += 2;
 		ret = ret.assoc(items.first(), RT.second(items));
 		}
 	return (PersistentTreeMap) ret;

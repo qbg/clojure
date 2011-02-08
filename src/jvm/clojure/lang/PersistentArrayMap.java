@@ -62,6 +62,10 @@ IPersistentMap createHT(Object[] init){
 }
 
 static public PersistentArrayMap createWithCheck(Object[] init){
+	if (init.length%2 == 1)
+		{
+		throw new IllegalArgumentException("Cannot create a map from an odd number of items: " + init.length);
+		}
 	for(int i=0;i< init.length;i += 2)
 		{
 		for(int j=i+2;j<init.length;j += 2)
@@ -78,12 +82,20 @@ static public PersistentArrayMap createWithCheck(Object[] init){
  * @param init {key1,val1,key2,val2,...}
  */
 public PersistentArrayMap(Object[] init){
+	if (init.length%2 == 1)
+		{
+		throw new IllegalArgumentException("Cannot create a map from an odd number of items: " + init.length);
+		}
 	this.array = init;
 	this._meta = null;
 }
 
 
 public PersistentArrayMap(IPersistentMap meta, Object[] init){
+	if (init.length%2 == 1)
+		{
+		throw new IllegalArgumentException("Cannot create a map from an odd number of items: " + init.length);
+		}
 	this._meta = meta;
 	this.array = init;
 }

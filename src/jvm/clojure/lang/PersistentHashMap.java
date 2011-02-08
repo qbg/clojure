@@ -51,6 +51,10 @@ static public IPersistentMap create(Map other){
  * @param init {key1,val1,key2,val2,...}
  */
 public static PersistentHashMap create(Object... init){
+	if (init.length%2 == 1)
+		{
+		throw new IllegalArgumentException("Cannot create a map from an odd number of items: " + init.length);
+		}
 	ITransientMap ret = EMPTY.asTransient();
 	for(int i = 0; i < init.length; i += 2)
 		{
@@ -60,6 +64,10 @@ public static PersistentHashMap create(Object... init){
 }
 
 public static PersistentHashMap createWithCheck(Object... init){
+	if (init.length%2 == 1)
+		{
+		throw new IllegalArgumentException("Cannot create a map from an odd number of items: " + init.length);
+		}
 	ITransientMap ret = EMPTY.asTransient();
 	for(int i = 0; i < init.length; i += 2)
 		{
@@ -86,7 +94,7 @@ static public PersistentHashMap createWithCheck(ISeq items){
 	for(int i=0; items != null; items = items.next().next(), ++i)
 		{
 		if(items.next() == null)
-			throw new IllegalArgumentException(String.format("No value supplied for key: %s", items.first()));
+			throw new IllegalArgumentException(String.format("Cannot create a map from an odd number of items: %d", i*2+1));
 		ret = ret.assoc(items.first(), RT.second(items));
 		if(ret.count() != i + 1)
 			throw new IllegalArgumentException("Duplicate key: " + items.first());
