@@ -268,9 +268,7 @@ str-or-pattern."
 	s (let [dem (demunge s)] (if (resolve (symbol dem)) dem s))
 	[match] (filter #(.isAssignableFrom ^Class (first %) cls) fuzzy-types)]
     (if-let [[specific fuzzy] match]
-      (if (= specific cls)
-	fuzzy
-	(format "%s (%s)" fuzzy s))
+      (format "%s (%s)" fuzzy s)
       s)))
 
 (defn format-exception-message

@@ -19,14 +19,21 @@ public class ArityException extends IllegalArgumentException {
 
 	final public String name;
 
+        final public IFn function;
+
 	public ArityException(int actual, String name) {
-		this(actual, name, null);
+	        this(actual, name, null, null);
 	}
 
-	public ArityException(int actual, String name, Throwable cause) {
+	public ArityException(int actual, String name, IFn function) {
+	        this(actual, name, function, null);
+	}
+
+        public ArityException(int actual, String name, IFn function, Throwable cause) {
 		super("Wrong number of args (" + actual + ") passed to: " + name, cause);
 		this.actual = actual;
 		this.name = name;
+		this.function = function;
 	}
 
 }

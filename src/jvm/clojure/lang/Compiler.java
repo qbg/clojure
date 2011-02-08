@@ -6081,7 +6081,7 @@ public static Object macroexpand1(Object x) throws Exception{
 				catch(ArityException e)
 					{
 						// hide the 2 extra params for a macro
-						throw new ArityException(e.actual - 2, e.name);
+					        throw new ArityException(e.actual - 2, e.name, e.function);
 					}
 			}
 		else

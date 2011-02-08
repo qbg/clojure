@@ -30,9 +30,23 @@ public int compare(Object o1, Object o2){
 				return -1;
 			return RT.booleanCast(invoke(o2,o1))? 1 : 0;
 			}
-
-		Number n = (Number) o;
-		return n.intValue();
+		if(o instanceof Number)
+		        {
+			    return ((Number) o).intValue();
+			}
+		throw new IllegalArgumentException("Function is not a valid java.util.Comparator");
+		}
+	
+	catch(ArityException e)
+	        {
+		if(e.function == this)
+			{
+			throw new IllegalArgumentException("Function is not a valid java.util.Comparator");
+			}
+	        else
+		        {
+			throw e;
+			}
 		}
 	catch(Exception e)
 		{
