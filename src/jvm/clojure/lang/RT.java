@@ -758,7 +758,16 @@ static Object nthFrom(Object coll, int n){
 			if(i == n)
 				return seq.first();
 		}
-		throw new IndexOutOfBoundsException("Index: " + n + ", Size: " + i);
+		if (n < 0) {
+			if (coll instanceof Counted) {
+				throw new IndexOutOfBoundsException("Index: " + n + ", Size: " +
+													((Counted) coll).count());
+			} else {
+				throw new IndexOutOfBoundsException("Index: " + n + ", Size: unknown");
+			}
+		} else {
+			throw new IndexOutOfBoundsException("Index: " + n + ", Size: " + i);
+		}
 	}
 	else
 		throw new UnsupportedOperationException(
